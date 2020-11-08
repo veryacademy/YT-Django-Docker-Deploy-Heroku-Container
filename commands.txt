@@ -1,0 +1,97 @@
+Stage 1 - Preparing Django
+py -m venv venv
+pip install django
+django-admin startproject core .
+py manage.py runserver
+pip freeze > requirements.txt
+
+Stage 2 - Django Configurable by Environment Variables
+https://en.wikipedia.org/wiki/Twelve-Factor_App_methodology
+
+method 1
+SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG', True)
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1').split(',')
+
+method 2
+https://dev.to/joshwizzy/how-to-keep-secrets-out-of-django-settings-41c4
+pip install django-environ
+make .gitignore
+add *.env
+
+Stage 3 - Granularise Settings.py / Multiple Settings Modules
+
+Stage 4 - AWS Config - Static Assets
+
+1. Create bucket django7982372982423423234
+2. Create Policy
+3. Create IAM user
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::django7982372982423423234",
+                "arn:aws:s3:::django7982372982423423234/*"
+            ]
+        }
+    ]
+}
+
+ID/Key
+AKIATYBUPYW5NLPH2PRT
+TV/6Jpdve5R5yfFHNWQpOLI18hSatjq7bj+GgKRL
+
+pip install django-storages
+Add 'storages', to settings app
+pip install boto3
+pip freeze > requirements.txt
+create static file
+py manage.py collectstatic
+Add to env
+py manage.py collectstatic
+
+Stage 5 - Gunicorn
+pip install gunicorn
+
+Stage 6 - Dockerise Part 1
+pip install gunicorn
+pip freeze > requirements.txt
+docker build -t django-core:v1 .
+
+docker run -p 8000:8000 django-core:v1
+
+
+Stage 7 - docker login
+docker login
+docker images
+docker tag django-core:v1 veryacademy/django-core:latest
+docker push veryacademy/django-core:latest
+
+
+Stage 8 - docker login
+https://devcenter.heroku.com/articles/heroku-cli
+
+# Login to the container registary
+heroku container:login
+cd to project
+heroku create
+
+heroku container:push django-core:v1 -a=dry-basin-04351
+heroku container:push web -a=dry-basin-04351
+heroku container:release -a dry-basin-04351 web
+heroku open -a=dry-basin-04351
+
+heroku logs --tail -a dry-basin-04351
+
+heroku config:set ALLOWED_HOSTS=dry-basin-04351.herokuapp.com -a dry-basin-04351
+heroku config:add ALLOWED_HOSTS=* -a dry-basin-04351
+heroku config:get ALLOWED_HOSTS -a dry-basin-04351
+
+#Test
+docker run -d --name django-heroku -e "PORT=8765" -e "DEBUG=1" -p 8007:8765 django-core:v1
+
+heroku config:get CONFIG-VAR-NAME -s  >> .env
